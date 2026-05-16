@@ -1,30 +1,28 @@
+# ============================================================
+# read_bbtable: lectura sin transformar valores BB
+# ============================================================
+
 #' Leer una planilla fitosociológica
 #'
-#' @param path `character`. Ruta al archivo `.xlsx`.
-#' @param val_r `numeric`. Valor para categoría `"r"`. Default `0.1`.
-#' @param val_mas `numeric`. Valor para `"+"`. Default `0.5`.
+#' Lee un archivo Excel con hojas de matriz y metadata. Los valores BB se
+#' conservan como caracteres — usar [bb_transform()] para convertir a numérico.
 #'
-#' @return Lista con dos elementos:
-#' \describe{
-#'   \item{`matrix`}{`data.frame`. Matriz especie × parcela con valores BB convertidos.}
-#'   \item{`meta`}{`data.frame`. Metadata de parcelas con columnas `parcela` y `formacion`.}
-#' }
+#' @param path `character`. Ruta al archivo `.xlsx`.
+#'
+#' @return Lista con elementos `matrix` (caracteres BB) y `meta` (metadata).
 #'
 #' @examples
 #' \dontrun{
-#' datos <- read_bbtable("Libro2.xlsx")
-#' datos$matrix
-#' datos$meta
+#' bb <- read_bbtable("Libro2.xlsx")
 #' }
 #'
 #' @importFrom readxl excel_sheets read_excel
 #' @importFrom stringr str_squish str_detect
 #' @importFrom stringdist stringdist
-#' @importFrom dplyr rename mutate filter across all_of case_when
-#' @importFrom tidyr replace_na
+#' @importFrom dplyr rename mutate filter
 #'
 #' @export
-read_bbtable <- function(path, val_r = 0.1, val_mas = 0.5) {
+read_bbtable <- function(path) {
 
   .norm <- function(x) tolower(iconv(stringr::str_squish(x), to = "ASCII//TRANSLIT"))
 
@@ -44,19 +42,9 @@ read_bbtable <- function(path, val_r = 0.1, val_mas = 0.5) {
     stop("Columna no encontrada. Patrones: ", paste(patrones, collapse = ", "))
   }
 
-  .convertir_bb <- function(x) {
-    x <- stringr::str_squish(as.character(x))
-    x[x %in% c("", "NA", "NULL", "-", "0")] <- NA_character_
-    dplyr::case_when(
-      is.na(x)          ~ 0,
-      tolower(x) == "r" ~ val_r,
-      x == "+"          ~ val_mas,
-      TRUE              ~ suppressWarnings(as.numeric(x))
-    ) |> tidyr::replace_na(0)
-  }
-
-  sheets <- readxl::excel_sheets(path)
-  raw_matriz <- readxl::read_excel(path, sheet = .fuzzy_sheet(sheets, "matriz"))
+  sheets     <- readxl::excel_sheets(path)
+  raw_matriz <- readxl::read_excel(path, sheet = .fuzzy_sheet(sheets, "matriz"),
+                                   col_types = "text")
   raw_meta   <- readxl::read_excel(path, sheet = .fuzzy_sheet(sheets, "meta"))
 
   names(raw_matriz) <- stringr::str_squish(names(raw_matriz))
@@ -66,15 +54,16 @@ read_bbtable <- function(path, val_r = 0.1, val_mas = 0.5) {
   if (!length(parcelas)) stop("No se detectaron columnas de parcelas (nombres numericos).")
 
   matrix <- raw_matriz |>
-    dplyr::rename(sp = dplyr::all_of(.extraer_col(raw_matriz, c("^sp$", "especie", "species", "taxon")))) |>
+    dplyr::rename(sp = dplyr::all_of(.extraer_col(raw_matriz,
+                  c("^sp$", "especie", "species", "taxon")))) |>
     dplyr::mutate(sp = stringr::str_squish(as.character(sp))) |>
-    dplyr::filter(!is.na(sp), sp != "") |>
-    dplyr::mutate(dplyr::across(dplyr::all_of(parcelas), .convertir_bb))
+    dplyr::filter(!is.na(sp), sp != "")
 
   meta <- raw_meta |>
     dplyr::rename(
       parcela   = dplyr::all_of(.extraer_col(raw_meta, c("^pm$", "parcela", "punto"))),
-      formacion = dplyr::all_of(.extraer_col(raw_meta, c("form.*veget", "unidad.*veget", "vegetacional", "formacion")))
+      formacion = dplyr::all_of(.extraer_col(raw_meta, c("form.*veget", "unidad.*veget",
+                                                          "vegetacional", "formacion")))
     ) |>
     dplyr::mutate(
       parcela   = stringr::str_squish(as.character(parcela)),
@@ -82,5 +71,5 @@ read_bbtable <- function(path, val_r = 0.1, val_mas = 0.5) {
     ) |>
     dplyr::filter(!is.na(parcela), parcela != "")
 
-  list(matrix = matrix, meta = meta)
+  list(matrix = matrix, meta = meta, parcelas = parcelas)
 }
