@@ -117,8 +117,8 @@ bb_construir_informe <- function(bb, name, format = "excel-y-plots",
     .guardar(
       stat_sp |>
         dplyr::slice_max(IVI_geo, n = 15, with_ties = FALSE) |>
-        dplyr::mutate(sp = forcats::fct_reorder(sp, IVI_200)) |>
-        ggplot2::ggplot(ggplot2::aes(x = IVI_200, y = sp)) +
+        dplyr::mutate(sp = forcats::fct_reorder(sp, IVI_geo)) |>
+        ggplot2::ggplot(ggplot2::aes(x = IVI_geo, y = sp)) +
         ggplot2::geom_col() +
         ggplot2::theme_minimal(base_size = 14) +
         ggplot2::labs(title = "Top 15 especies por IVI", x = "IVI_200", y = NULL),
