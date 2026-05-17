@@ -1,0 +1,27 @@
+Package: braunblanc
+Title: Análisis fitosociológico con R
+Version: 0.1.0
+Authors@R: person("Julian", "Caro", email = "jcaro.cont@gmail.com", role = c("aut", "cre"))
+Description: Herramientas para el análisis fitosociológico de comunidades vegetales. Implementa lectura y normalización de matrices Braun-Blanquet, estadísticos por especie, relevé y formación vegetal, ordenaciones multivariadas y exportación de informes.
+License: MIT
+URL: {{ URL }}
+BugReports: {{ BugReports }}
+Encoding: UTF-8
+LazyData: true
+Imports: 
+    cluster,
+    dplyr,
+    forcats,
+    ggdendro,
+    ggforce,
+    ggplot2,
+    indicspecies,
+    purrr,
+    readxl,
+    stringdist,
+    stringr,
+    tibble,
+    tidyr,
+    vegan,
+    writexl
+RoxygenNote: 7.3.3
