@@ -12,7 +12,7 @@ ordenaciones multivariadas y análisis de diversidad.
 
 ```r
 # install.packages("devtools")
-devtools::install_github("jcarocont/braunblanc")
+devtools::install_github("jcarocont/braunblanc@main")
 ```
 
 ## Flujo de uso
