@@ -11,6 +11,7 @@
 #' @return `ggplot`.
 #'
 #' @importFrom ggplot2 ggplot aes geom_text scale_color_brewer theme_minimal labs geom_segment
+
 #' @importFrom ggdendro dendro_data label segment 
 #' @importFrom cluster clusGap maxSE
 #'
