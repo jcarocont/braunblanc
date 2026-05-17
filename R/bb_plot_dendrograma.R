@@ -37,7 +37,7 @@ bb_plot_dendrograma <- function(dist_obj, k = NULL, method_hclust = "ward.D2") {
   labels$cluster <- factor(clusters[labels$label])
 
   ggplot2::ggplot() +
-    ggdendro::geom_segment(data = ggdendro::segment(dend_data),
+    ggplot2::geom_segment(data = ggdendro::segment(dend_data),
                            ggplot2::aes(x = x, y = y, xend = xend, yend = yend)) +
     ggplot2::geom_text(data = labels,
                        ggplot2::aes(x = x, y = -0.01, label = label, color = cluster),
